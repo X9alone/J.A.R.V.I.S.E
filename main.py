@@ -18,14 +18,14 @@ talk("Hi, can i help you?")
 
 def command():
     r = sr.Recognizer()
-    with sr.Microphone as source:
+    with sr.Microphone() as source:
         print("Say")
         r.pause_threshold = 1
         r.adjust_for_ambient_noise(source, duration=1)
         audio = r.listen(source)
 
     try:
-        task = r.recognize_google(audio, language="ua-UA"),lower()
+        task = r.recognize_google(audio, language="ua-UA").lower()
         print("ви проговорили: " + task)
     except sr.UnknownValueError:
         talk("Я вас не зрозумів")
