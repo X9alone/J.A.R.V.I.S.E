@@ -2,7 +2,26 @@ import speech_recognition as sr
 import os
 import sys
 import pyttsx3
+import webbrowser
 engine = pyttsx3.init()
+
+import openai
+
+from dotenv import load_dotenv as ld
+
+dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
+if os.path.exists(dotenv_path):
+    ld(dotenv_path)
+
+openai.api_key = os.getenv("api_key")
+
+
+def input_ai(task):
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo", messages=[{"role": "user", "content": task}])
+    return completion
+
+
 
 
 
@@ -25,21 +44,34 @@ def command():
         audio = r.listen(source)
 
     try:
-        task = r.recognize_google(audio, language="en-EN").lower()
+        # task = r.recognize_google(audio, language="en-EN").lower()
+        task = r.recognize_google(audio, language="uk-UA").lower()
         print("ви проговорили: " + task)
     except sr.UnknownValueError:
-        talk("Я вас не зрозумів")
+        talk("ya was ne zrozumiw")
         task = command()
 
     return task
 
 
 def make_something(task):
-    if "open site" in task:
+    # if "open site" in task:
+    if "відкрий" and "сайт" in task:
         talk("відкриваю")
         url = "https://ituniver.com"
         webbrowser.open(url)
 
 
+    elif "ім'я" and "твоє" in task:
+        talk("My name`s JARVIS")
+
+
+    elif "стоп" in task:
+        talk("Good buy")
+        sys.exit()
+
+    else:
+        ai_response = input_ai(task).choices[0].message.content
+        talk(ai_response)
 while True:
     make_something(task=command())

@@ -19,7 +19,7 @@ def handle_input(user_input):
     return completion
 
 
-# print(handle_input("user_input").choices[0].message.content)
+# print(handle_input(user_input).choices[0].message.content)
 
 
 while True:
