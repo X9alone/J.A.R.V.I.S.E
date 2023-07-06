@@ -22,13 +22,14 @@ def input_ai(task):
     return completion
 
 
-
+take = input("Який тип помічника ти хочеш? Обери голосовий (1) чи письмовий (2) ")
 
 
 def talk(words):
     print(words)
-    engine.say(words)
-    engine.runAndWait()
+    if take == "1":
+        engine.say(words)
+        engine.runAndWait()
 
 
 
@@ -36,20 +37,23 @@ talk("Hi, can i help you?")
 
 
 def command():
-    r = sr.Recognizer()
-    with sr.Microphone() as source:
-        print("Say")
-        r.pause_threshold = 1
-        r.adjust_for_ambient_noise(source, duration=1)
-        audio = r.listen(source)
+    if take == "1":
+        r = sr.Recognizer()
+        with sr.Microphone() as source:
+            print("Say")
+            r.pause_threshold = 1
+            r.adjust_for_ambient_noise(source, duration=1)
+            audio = r.listen(source)
 
-    try:
-        # task = r.recognize_google(audio, language="en-EN").lower()
-        task = r.recognize_google(audio, language="uk-UA").lower()
-        print("ви проговорили: " + task)
-    except sr.UnknownValueError:
-        talk("ya was ne zrozumiw")
-        task = command()
+        try:
+            # task = r.recognize_google(audio, language="en-EN").lower()
+            task = r.recognize_google(audio, language="uk-UA").lower()
+            print("ви проговорили: " + task)
+        except sr.UnknownValueError:
+            talk("ya was ne zrozumiw")
+            task = command()
+    else:
+        task = input("Your task: ")
 
     return task
 
@@ -67,11 +71,20 @@ def make_something(task):
 
 
     elif "стоп" in task:
-        talk("Good buy")
+        talk("Goodbye")
         sys.exit()
 
     else:
-        ai_response = input_ai(task).choices[0].message.content
-        talk(ai_response)
+        try:
+            ai_response = input_ai(task).choices[0].message.content
+            talk(ai_response)
+        except openai.error.ServiceUnavailableError:
+            talk("sorry,i am going to try again")
+            try:
+                ai_response = input_ai(task).choices[0].message.content
+                talk(ai_response)
+            except openai.error.ServiceUnavailableError:
+                talk("sorry, can you give me new task?")
+
 while True:
     make_something(task=command())
